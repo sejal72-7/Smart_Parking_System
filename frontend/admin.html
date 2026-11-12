@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="admin.html">
+                <span class="brand-badge">P</span>
+                <span>Smart Parking Admin</span>
+            </a>
+            <div class="nav-links">
+                <span class="nav-user" id="navAdminLabel">Admin</span>
+                <button class="btn btn-light btn-sm" id="btnRefreshAdmin" type="button">Refresh</button>
+                <button class="btn btn-light btn-sm" id="btnLogoutAdmin" type="button">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="adminAlert" class="alert" role="alert"></div>
+
+        <!-- Summary Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Slots</div>
+                <div class="stat-value" id="admStatTotal">0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">Available Slots</div>
+                <div class="stat-value" id="admStatAvailable">0</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-label">Occupied Slots</div>
+                <div class="stat-value" id="admStatOccupied">0</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-label">Waitlist Queue</div>
+                <div class="stat-value" id="admStatWaitlist">0</div>
+            </div>
+        </section>
+
+        <!-- Admin Navigation Tabs -->
+        <div class="tabs admin-tabs">
+            <button class="tab-btn active" data-panel="panelSlots" type="button">Parking Slots</button>
+            <button class="tab-btn" data-panel="panelUsers" type="button">Users</button>
+            <button class="tab-btn" data-panel="panelVehicles" type="button">Vehicles (HashMap)</button>
+            <button class="tab-btn" data-panel="panelBookings" type="button">Active &amp; History</button>
+            <button class="tab-btn" data-panel="panelDsa" type="button">DSA Monitor</button>
+        </div>
+
+        <!-- PANEL 1: Parking Slots Management -->
+        <section id="panelSlots" class="admin-panel">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Parking Slots Grid</h2>
+                        <div class="legend">
+                            <span class="legend-item"><span class="dot green"></span> Available</span>
+                            <span class="legend-item"><span class="dot red"></span> Occupied</span>
+                        </div>
+                    </div>
+                    <div id="adminSlotsGrid" class="slots-grid">
+                        <p class="muted">Loading slots...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Add New Parking Slot</h2>
+                    </div>
+                    <form id="addSlotForm">
+                        <div class="form-group">
+                            <label for="newSlotNumber">Slot Number (used by Min Heap)</label>
+                            <input type="number" id="newSlotNumber" min="1" max="9999" placeholder="e.g. 13" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newSlotCode">Slot Code (optional, e.g. P-13)</label>
+                            <input type="text" id="newSlotCode" placeholder="Auto-generated if blank">
+                        </div>
+                        <div class="form-group">
+                            <label for="newSlotType">Slot Type</label>
+                            <select id="newSlotType">
+                                <option value="Car">Car</option>
+                                <option value="Bike">Bike</option>
+                                <option value="EV">EV</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Add Parking Slot</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 2: Registered Users -->
+        <section id="panelUsers" class="admin-panel hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Registered Users</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Registered At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 3: Registered Vehicles + HashMap Search -->
+        <section id="panelVehicles" class="admin-panel hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Registered Vehicles (HashMap Search)</h2>
+                </div>
+                <form id="vehicleSearchForm" style="display:flex; gap:0.65rem; flex-wrap:wrap; margin-bottom:1rem;">
+                    <input type="text" id="vehicleSearchInput" placeholder="Search by Registration Number (e.g. OD02AB1234)..." style="flex:1; min-width:220px;">
+                    <button type="submit" class="btn btn-primary">Search HashMap</button>
+                    <button type="button" id="btnResetVehicleSearch" class="btn btn-outline">Show All</button>
+                </form>
+                <p id="vehicleSearchMeta" class="muted" style="margin-bottom:0.8rem;"></p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Reg Number</th>
+                                <th>Type</th>
+                                <th>Owner Name</th>
+                                <th>Owner Email</th>
+                                <th>Current Slot</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminVehiclesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 4: Active Bookings & Parking History -->
+        <section id="panelBookings" class="admin-panel hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Active Bookings</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Slot</th>
+                                <th>User</th>
+                                <th>Vehicle Reg</th>
+                                <th>Type</th>
+                                <th>Entry Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminActiveBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Complete Parking History</h2>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Slot</th>
+                                <th>User</th>
+                                <th>Vehicle Reg</th>
+                                <th>Entry Time</th>
+                                <th>Exit Time</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminHistoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 5: Live C++ DSA State Inspector -->
+        <section id="panelDsa" class="admin-panel hidden">
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">1. Min Heap (Lowest Available Slot)</h2>
+                    </div>
+                    <p class="muted">
+                        Next slot to be auto-allocated: <strong id="dsaNextMinSlot">-</strong>
+                    </p>
+                    <div id="dsaHeapPills" class="heap-pills"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">2. Queue (FIFO Waiting List)</h2>
+                    </div>
+                    <ul id="dsaQueueList" class="dsa-list">
+                        <li class="muted">Waiting list is empty.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">3. Stack (Recent Entry / Exit Operations - LIFO)</h2>
+                    <span class="muted">HashMap Indexed Vehicles: <strong id="dsaHashCount">0</strong></span>
+                </div>
+                <ul id="dsaStackList" class="dsa-list">
+                    <li class="muted">No operations recorded yet.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
+

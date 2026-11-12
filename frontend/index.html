@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Management System - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="index.html">
+                <span class="brand-badge">P</span>
+                <span>Smart Parking System</span>
+            </a>
+            <div class="nav-links">
+                <span class="nav-user">C++ Crow + MySQL + DSA</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome to Smart Parking</h1>
+                <p>Book, manage, and track parking slots in real time</p>
+            </div>
+
+            <div class="tabs" role="tablist">
+                <button class="tab-btn active" id="tabUserLogin" type="button">User Login</button>
+                <button class="tab-btn" id="tabRegister" type="button">Register</button>
+                <button class="tab-btn" id="tabAdminLogin" type="button">Admin Login</button>
+            </div>
+
+            <div id="authAlert" class="alert" role="alert"></div>
+
+            <!-- User Login Form -->
+            <form id="userLoginForm">
+                <div class="form-group">
+                    <label for="userLoginEmail">Email Address</label>
+                    <input type="email" id="userLoginEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="userLoginPassword">Password</label>
+                    <input type="password" id="userLoginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In as User</button>
+            </form>
+
+            <!-- User Registration Form -->
+            <form id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label for="regFullName">Full Name</label>
+                    <input type="text" id="regFullName" placeholder="e.g. Rahul Sharma" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <input type="email" id="regEmail" placeholder="rahul@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Phone Number (optional)</label>
+                    <input type="tel" id="regPhone" placeholder="e.g. 9876543210">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password (min 6 characters)</label>
+                    <input type="password" id="regPassword" minlength="6" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create User Account</button>
+            </form>
+
+            <!-- Admin Login / First-Time Admin Setup -->
+            <div id="adminSection" class="hidden">
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="adminLoginEmail">Admin Email</label>
+                        <input type="email" id="adminLoginEmail" placeholder="admin@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminLoginPassword">Admin Password</label>
+                        <input type="password" id="adminLoginPassword" placeholder="Enter admin password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In as Admin</button>
+                </form>
+
+                <!-- Shown ONLY when 0 admin accounts exist in MySQL -->
+                <div id="bootstrapAdminBox" class="hidden" style="margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border);">
+                    <p class="muted" style="margin-bottom: 0.75rem;">
+                        No administrator account exists in the database yet. Create the first Admin account below:
+                    </p>
+                    <form id="bootstrapAdminForm">
+                        <div class="form-group">
+                            <label for="bootAdminName">Admin Name</label>
+                            <input type="text" id="bootAdminName" placeholder="e.g. Parking Admin" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bootAdminEmail">Admin Email</label>
+                            <input type="email" id="bootAdminEmail" placeholder="admin@parking.local" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bootAdminPassword">Admin Password (min 6 chars)</label>
+                            <input type="password" id="bootAdminPassword" minlength="6" placeholder="Choose a strong password" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline btn-block">Create First Admin Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
+

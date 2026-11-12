@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking - User Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="dashboard.html">
+                <span class="brand-badge">P</span>
+                <span>Smart Parking System</span>
+            </a>
+            <div class="nav-links">
+                <span class="nav-user" id="navUserLabel">Loading...</span>
+                <button class="btn btn-light btn-sm" id="btnRefresh" type="button">Refresh</button>
+                <button class="btn btn-light btn-sm" id="btnLogout" type="button">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="dashAlert" class="alert" role="alert"></div>
+
+        <!-- Summary Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Slots</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-label">Available Slots</div>
+                <div class="stat-value" id="statAvailable">0</div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-label">Occupied Slots</div>
+                <div class="stat-value" id="statOccupied">0</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-label">Next Lowest Slot (Min Heap)</div>
+                <div class="stat-value" id="statNextSlot">-</div>
+            </div>
+        </section>
+
+        <!-- Active Booking Banner (shown when user has an active slot) -->
+        <section id="activeBookingBanner" class="active-banner hidden">
+            <div>
+                <h3>Active Parking: <span id="activeSlotCode">P-01</span> (<span id="activeRegNum">-</span>)</h3>
+                <p>Vehicle Type: <span id="activeVehType">Car</span> &bull; Entered at: <span id="activeEntryTime">-</span></p>
+            </div>
+            <button id="btnReleaseActive" class="btn btn-danger" type="button">Release Parking Slot</button>
+        </section>
+
+        <!-- Waiting List Banner (shown if user is currently in FIFO Queue) -->
+        <section id="waitlistStatusBanner" class="card hidden" style="border-left: 5px solid var(--amber-600);">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+                <div>
+                    <strong style="color: var(--amber-600);">You are in the FIFO Waiting List!</strong>
+                    <p class="muted">Queue Position: #<strong id="waitlistPosNum">1</strong>. As soon as any slot is released, it will be assigned to the front of the queue automatically.</p>
+                </div>
+                <button id="btnLeaveWaitlist" class="btn btn-outline btn-sm" type="button">Leave Waiting List</button>
+            </div>
+        </section>
+
+        <!-- Main Grid: Visual Parking Lot + Booking Form -->
+        <div class="two-col">
+            <!-- Left: Visual Parking Grid -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Live Parking Slots Grid</h2>
+                    <div class="legend">
+                        <span class="legend-item"><span class="dot green"></span> Available</span>
+                        <span class="legend-item"><span class="dot red"></span> Occupied</span>
+                        <span class="legend-item"><span class="dot blue"></span> Selected / Yours</span>
+                    </div>
+                </div>
+                <p class="muted" style="margin-bottom: 1rem;">
+                    Click any <strong>green available slot</strong> to select it, or use <strong>Auto-Allocate Lowest Slot</strong> powered by our C++ Min Heap.
+                </p>
+                <div id="slotsGrid" class="slots-grid">
+                    <p class="muted">Loading slots...</p>
+                </div>
+            </section>
+
+            <!-- Right: Book Slot / Join Waitlist -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title" id="bookingCardTitle">Book a Parking Slot</h2>
+                </div>
+
+                <!-- Standard Booking Form (when slots are available) -->
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="selectedSlotDisplay">Allocation Mode</label>
+                        <input type="text" id="selectedSlotDisplay" value="Auto-Allocate Lowest Slot (Min Heap)" readonly>
+                        <input type="hidden" id="selectedSlotId" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookingRegNumber">Vehicle Registration Number</label>
+                        <input type="text" id="bookingRegNumber" placeholder="e.g. OD02AB1234" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookingVehicleType">Vehicle Type</label>
+                        <select id="bookingVehicleType">
+                            <option value="Car">Car</option>
+                            <option value="Bike">Bike</option>
+                            <option value="SUV">SUV</option>
+                            <option value="EV">EV</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+                        <button type="submit" id="btnBookSlot" class="btn btn-success" style="flex:1;">
+                            Book Parking Slot
+                        </button>
+                        <button type="button" id="btnResetAuto" class="btn btn-outline btn-sm">
+                            Use Auto-Allocate
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Waitlist Form (shown when all slots are occupied) -->
+                <form id="waitlistForm" class="hidden">
+                    <p class="muted" style="margin-bottom: 1rem;">
+                        All parking slots are currently occupied! Join the <strong>FIFO Waiting Queue</strong> to get the next freed slot automatically.
+                    </p>
+                    <div class="form-group">
+                        <label for="waitRegNumber">Vehicle Registration Number</label>
+                        <input type="text" id="waitRegNumber" placeholder="e.g. OD02AB1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="waitVehicleType">Vehicle Type</label>
+                        <select id="waitVehicleType">
+                            <option value="Car">Car</option>
+                            <option value="Bike">Bike</option>
+                            <option value="SUV">SUV</option>
+                            <option value="EV">EV</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Join Waiting List (Queue)</button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Previous Parking Bookings -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">My Parking History</h2>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking #</th>
+                            <th>Slot</th>
+                            <th>Vehicle Reg</th>
+                            <th>Type</th>
+                            <th>Entry Time</th>
+                            <th>Exit Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myHistoryBody">
+                        <tr><td colspan="8" class="muted">Loading history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+

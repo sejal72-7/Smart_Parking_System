@@ -1,0 +1,21 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Win32-GCC",
+            "includePath": [
+                "${workspaceFolder}/backend/include",
+                "${workspaceFolder}/backend/third_party/crow",
+                "${workspaceFolder}/backend/third_party/asio",
+                "C:/Program Files/MySQL/MySQL Server 8.0/include"
+            ],
+            "defines": [
+                "_WIN32_WINNT=0x0A00",
+                "ASIO_STANDALONE"
+            ],
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ]
+}
+

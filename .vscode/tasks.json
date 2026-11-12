@@ -1,0 +1,51 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Smart Parking Backend",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/backend/build.ps1"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Run DSA Unit Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/backend/build/test_dsa.exe",
+            "dependsOn": ["Build Smart Parking Backend"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Run Smart Parking Server",
+            "type": "shell",
+            "command": "${workspaceFolder}/backend/build/smart_parking_server.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "dependsOn": ["Build Smart Parking Backend"],
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
+

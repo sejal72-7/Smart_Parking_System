@@ -1,0 +1,14 @@
+# Sensitive local database configuration (contains your MySQL password)
+backend/config.env
+
+# Compiled build artifacts and copied DLLs
+backend/build/
+*.exe
+*.dll
+*.o
+*.obj
+
+# IDE caches & logs
+.vscode/ipch/
+.vscode/*.log
+*.log
