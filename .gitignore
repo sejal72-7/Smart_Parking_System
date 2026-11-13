@@ -3,6 +3,7 @@ backend/config.env
 
 # Compiled build artifacts and copied DLLs
 backend/build/
+backend/build_vs/
 *.exe
 *.dll
 *.o
